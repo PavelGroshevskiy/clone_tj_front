@@ -24,8 +24,8 @@ const DialogLogin = (props: Props) => {
 	return (
 		<>
 			<Dialog
-				fullScreen={fullScreen}
-				open={handleClickOpen}
+				fullScreen
+				open
 				onClose={handleClose}
 				aria-labelledby="responsive-dialog-title"
 			>
