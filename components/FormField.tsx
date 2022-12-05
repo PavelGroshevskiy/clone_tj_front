@@ -17,6 +17,7 @@ const FormField: FC<FormFieldProps> = ({ label, name }) => {
 			size="small"
 			label={label}
 			variant="outlined"
+			helperText={formState.errors[name]?.message}
 			error={!!formState.errors[name]?.message}
 			fullWidth
 		/>
