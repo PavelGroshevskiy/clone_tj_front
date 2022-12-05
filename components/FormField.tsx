@@ -25,4 +25,3 @@ const FormField: FC<FormFieldProps> = ({ label, name }) => {
 };
 
 export default FormField;
-// {}
