@@ -4,6 +4,10 @@ import { FormProvider, useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { loginSchema } from "../../../utils/yupSchemas";
 import FormField from "../../FormField";
+import { loginUserDto } from "../../../utils/api/types";
+import { userApi } from "../../../utils/api";
+import { setCookie } from "nookies";
+import Alert from "@material-ui/lab/Alert";
 
 interface ILogin {
 	email: string;
@@ -15,12 +19,24 @@ interface LoginFormProps {
 }
 
 const LoginForm: FC<LoginFormProps> = ({ onRegisterOpen }) => {
+	const [errorMessage, setErrorMessage] = React.useState("");
 	const form = useForm<ILogin>({
 		mode: "onChange",
 		resolver: yupResolver(loginSchema),
 	});
 
-	const onSubmit = (data: ILogin) => console.log(data);
+	const onSubmit = async (dto: loginUserDto) => {
+		try {
+			const data = await userApi.login(dto);
+			setCookie(null, "authToken", data.token, {
+				maxAge: 30 * 24 * 60 * 60,
+				path: "/",
+			});
+			setErrorMessage("");
+		} catch (err) {
+			err.response && setErrorMessage(err.response.data.message);
+		}
+	};
 
 	return (
 		<>
@@ -29,8 +45,13 @@ const LoginForm: FC<LoginFormProps> = ({ onRegisterOpen }) => {
 					<form onSubmit={form.handleSubmit(onSubmit)}>
 						<FormField name="email" label="Почта" />
 						<FormField name="password" label="Пароль" />
+						{errorMessage && (
+							<Alert severity="warning" className="mb-20">
+								{errorMessage}
+							</Alert>
+						)}
 						<Button
-							disabled={!form.formState.isValid}
+							disabled={!form.formState.isValid || form.formState.isSubmitting}
 							type="submit"
 							color="primary"
 							variant="contained"

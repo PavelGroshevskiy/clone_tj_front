@@ -1,9 +1,12 @@
-import { TextField, Button } from "@material-ui/core";
+import { Button } from "@material-ui/core";
+import { setCookie } from "nookies";
 import React, { FC } from "react";
 import { yupResolver } from "@hookform/resolvers/yup";
 import FormField from "../../FormField";
 import { useForm, FormProvider } from "react-hook-form";
 import { registerSchema } from "../../../utils/yupSchemas";
+import { userApi } from "../../../utils/api/index";
+import { createUserDto, loginUserDto } from "../../../utils/api/types";
 
 interface IRegister {
 	email: string;
@@ -17,13 +20,25 @@ interface RegisterFormProps {
 }
 
 const RegisterForm: FC<RegisterFormProps> = ({ onRegisterOpen, openLogin }) => {
+	const [errorMessage, setErrorMessage] = React.useState("");
 	const form = useForm<IRegister>({
 		mode: "onChange",
 		resolver: yupResolver(registerSchema),
 	});
 
-	const onSubmit = (data: IRegister) => console.log(data);
-	console.log(!form.formState.isValid);
+	const onSubmit = async (dto: createUserDto) => {
+		try {
+			const data = await userApi.register(dto);
+			setCookie(null, "authToken", data.token, {
+				maxAge: 30 * 24 * 60 * 60,
+				path: "/",
+			});
+			setErrorMessage("");
+		} catch (err) {
+			err.response && setErrorMessage(err.response.data.message);
+		}
+	};
+
 	return (
 		<div>
 			<FormProvider {...form}>
@@ -36,7 +51,7 @@ const RegisterForm: FC<RegisterFormProps> = ({ onRegisterOpen, openLogin }) => {
 						onClick={onRegisterOpen}
 						color="primary"
 						variant="contained"
-						disabled={!form.formState.isValid}
+						disabled={!form.formState.isValid || form.formState.isSubmitting}
 					>
 						Зарегестрироваться
 					</Button>
