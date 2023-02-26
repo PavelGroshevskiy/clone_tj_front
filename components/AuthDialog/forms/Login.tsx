@@ -8,6 +8,8 @@ import { loginUserDto } from "../../../utils/api/types";
 import { userApi } from "../../../utils/api";
 import { setCookie } from "nookies";
 import Alert from "@material-ui/lab/Alert";
+import { useAppDispatch } from "../../../redux/hooks.";
+import { setUserData } from "../../../redux/slices/user";
 
 interface ILogin {
 	email: string;
@@ -19,6 +21,7 @@ interface LoginFormProps {
 }
 
 const LoginForm: FC<LoginFormProps> = ({ onRegisterOpen }) => {
+	const dispatch = useAppDispatch();
 	const [errorMessage, setErrorMessage] = React.useState("");
 	const form = useForm<ILogin>({
 		mode: "onChange",
@@ -28,11 +31,12 @@ const LoginForm: FC<LoginFormProps> = ({ onRegisterOpen }) => {
 	const onSubmit = async (dto: loginUserDto) => {
 		try {
 			const data = await userApi.login(dto);
-			setCookie(null, "authToken", data.token, {
+			setCookie(null, "authToken", data.authToken, {
 				maxAge: 30 * 24 * 60 * 60,
 				path: "/",
 			});
 			setErrorMessage("");
+			dispatch(setUserData(data));
 		} catch (err) {
 			err.response && setErrorMessage(err.response.data.message);
 		}

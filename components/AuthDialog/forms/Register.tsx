@@ -6,7 +6,7 @@ import FormField from "../../FormField";
 import { useForm, FormProvider } from "react-hook-form";
 import { registerSchema } from "../../../utils/yupSchemas";
 import { userApi } from "../../../utils/api/index";
-import { createUserDto, loginUserDto } from "../../../utils/api/types";
+import { createUserDto } from "../../../utils/api/types";
 
 interface IRegister {
 	email: string;
@@ -29,7 +29,7 @@ const RegisterForm: FC<RegisterFormProps> = ({ onRegisterOpen, openLogin }) => {
 	const onSubmit = async (dto: createUserDto) => {
 		try {
 			const data = await userApi.register(dto);
-			setCookie(null, "authToken", data.token, {
+			setCookie(null, "authToken", data.authToken, {
 				maxAge: 30 * 24 * 60 * 60,
 				path: "/",
 			});

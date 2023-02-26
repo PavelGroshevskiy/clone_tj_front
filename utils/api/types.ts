@@ -13,6 +13,6 @@ export type ResponseUser = {
 	fullName: string;
 	id: number;
 	commentsCount?: number;
-	token: string;
+	authToken: string;
 	updatedAt: string;
 };
